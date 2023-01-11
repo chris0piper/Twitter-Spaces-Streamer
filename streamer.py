@@ -14,17 +14,22 @@ from selenium.webdriver.support.ui import WebDriverWait
 from random import randint
 import json
 import requests
+
+
 import importlib  
 speaker_lookup = importlib.import_module("Twitter-Spaces-Speaker-Lookup.speaker_lookup")
 ts = speaker_lookup.Twitter_Spaces()
 
 
 def transcribe_space(spaces_id):
+
+    print('New space: {}!'.format(spaces_id))
     # set up webdriver
     caps = DesiredCapabilities.CHROME
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
     options = webdriver.ChromeOptions()
     options.add_argument("--window-size=1920,1080")
+    options.headless = True
 
     driver = webdriver.Chrome(desired_capabilities=caps,options=options)
 
@@ -52,13 +57,13 @@ def transcribe_space(spaces_id):
         hit_urls = []
 
         # Open the file in 'ab' (append binary) mode
-        with open('audio.aac', 'ab') as f:
+        with open('audio{}.aac'.format(spaces_id), 'ab') as f:
             for event in events:
 
                 # Skip duplicate urls
                 url = event['params']['response']['url']
                 if(url in hit_urls):
-                    continue;
+                    continue
 
                 # Send a GET request to the URL
                 response = requests.get(url)
@@ -67,7 +72,6 @@ def transcribe_space(spaces_id):
                 if response.status_code == 200:
                     # Write the content of the response to the file
                     f.write(response.content)
-                    print("File downloaded successfully")
                     hit_urls.append(url)
                 else:
                     print("Error downloading file")
