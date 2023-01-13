@@ -14,8 +14,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from random import randint
 import json
 import requests
-
-
+import numpy as np
 import importlib  
 speaker_lookup = importlib.import_module("Twitter-Spaces-Speaker-Lookup.speaker_lookup")
 ts = speaker_lookup.Twitter_Spaces()
@@ -29,7 +28,7 @@ def transcribe_space(spaces_id):
     caps['goog:loggingPrefs'] = {'performance': 'ALL'}
     options = webdriver.ChromeOptions()
     options.add_argument("--window-size=1920,1080")
-    options.headless = True
+    options.headless = False
 
     driver = webdriver.Chrome(desired_capabilities=caps,options=options)
 
@@ -70,7 +69,23 @@ def transcribe_space(spaces_id):
 
                 # Check if the request was successful
                 if response.status_code == 200:
-                    # Write the content of the response to the file
+                    # Get the content of the response
+                    data = response.content
+
+                    # Convert the audio data to a numpy array
+                    # data = np.frombuffer(data, dtype=np.int16)
+
+                    # Convert the numpy array to a bytes object
+                    # in_data = data.tobytes()
+
+                    size = len(data)
+
+
+                    print("Size of the file: ", size, "bytes", " of type ", type(data))
+                    # Write the content to the stream
+                    # _buff.put(in_data)
+
+                    # # Write the content of the response to the file
                     f.write(response.content)
                     hit_urls.append(url)
                 else:
